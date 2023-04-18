@@ -2,6 +2,7 @@ from django.contrib.auth import login
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.views import LoginView, LogoutView
+from django.http import Http404
 from django.shortcuts import redirect
 from django.urls import reverse_lazy
 from django.views.generic.detail import DetailView
@@ -62,7 +63,12 @@ class TaskList(LoginRequiredMixin, ListView):
 class TaskDetail(LoginRequiredMixin, DetailView):
     model = Task
     context_object_name = 'task'
-    # BUG: User can view other users' tasks if task.id is known
+
+    def dispatch(self, *args, **kwargs):
+        task = self.get_object()
+        if task.user != self.request.user:
+            raise Http404
+        return super().dispatch(*args, **kwargs)
 
 
 class TaskCreate(LoginRequiredMixin, CreateView):
@@ -87,6 +93,12 @@ class TaskUpdate(LoginRequiredMixin, UpdateView):
         'complete',
     )
     success_url = reverse_lazy('tasks')
+
+    def dispatch(self, *args, **kwargs):
+        task = self.get_object()
+        if task.user != self.request.user:
+            raise Http404
+        return super().dispatch(*args, **kwargs)
 
 
 class TaskDelete(LoginRequiredMixin, DeleteView):
