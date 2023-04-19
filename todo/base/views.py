@@ -105,3 +105,9 @@ class TaskDelete(LoginRequiredMixin, DeleteView):
     model = Task
     context_object_name = 'task'
     success_url = reverse_lazy('tasks')
+
+    def dispatch(self, *args, **kwargs):
+        task = self.get_object()
+        if task.user != self.request.user:
+            raise Http404
+        return super().dispatch(*args, **kwargs)
