@@ -21,10 +21,12 @@
 
 <div id="search-add-wrapper">
     <form method="GET" style="display: flex;">
-        <input type="text" name="query" value="{{query_value}}">
+        <input type="text" name="query" placeholder="Search task" value="{{query_value}}">
         <input class="button" type="submit" value="Search">
     </form>
+    {% if tasks|length > 0 %}
     <a id="add-link" href="{% url 'task-create' %}">&#x2b;</a>
+    {% endif %}
 </div>
 
 <!-- Hidden form. Form submits new task positions -->
@@ -49,7 +51,10 @@
     </div>
 
     {% empty %}
-    <h2 style="text-align: center; padding-bottom: 20px;">Your To Do list is empty ☹️</h3>
+    <div style="text-align: center; padding-bottom: 10px; line-height: 1em;">
+        <h2>Your To Do list is empty ☹️</h2>
+        <h2>Create a <a style="text-decoration: none; color: #E53935;" href="{% url 'task-create' %}">new task</a> !</h2>
+    </div>
     {% endfor %}
 </div>
 
