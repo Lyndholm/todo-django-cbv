@@ -1,6 +1,10 @@
 {% extends 'base/main.html' %}
+{% load static %}
 
 {% block content %}
+
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
+
 
 <div class="header-bar">
     <div>
@@ -16,36 +20,39 @@
 </div>
 
 <div id="search-add-wrapper">
-    <form method="GET" style="margin-top: 12px; display: flex;">
+    <form method="GET" style="display: flex;">
         <input type="text" name="query" value="{{query_value}}">
         <input class="button" type="submit" value="Search">
     </form>
-    <a id="add-link" href="{% url 'task-create' %}">&#x2b</a>
+    <a id="add-link" href="{% url 'task-create' %}">&#x2b;</a>
 </div>
 
+<!-- Hidden form. Form submits new task positions -->
+<form style="display: none;" id="task-reorder-form" method="POST" action="{% url 'task-reorder' %}">
+    {% csrf_token %}
+    <input type="hidden" id="task-position-input" name="position">
+</form>
 
-
-
-<div class="task-items-wrapper">
+<div id="task-list" class="task-items-wrapper">
     {% for task in tasks %}
-    <div class="task-wrapper">
-        {% if task.complete %}
+    <div class="handle task-wrapper" data-position="{{task.pk}}">
         <div class="task-title">
+            {% if task.complete %}
             <div class="task-complete-icon"></div>
             <i><s><a href="{% url 'task-update' task.id %}">{{task}}</a></s></i>
-        </div>
-        <a class="delete-link" href="{% url 'task-delete' task.id %}">&#215;</a>
-        {% else %}
-        <div class="task-title">
+            {% else %}
             <div class="task-incomplete-icon"></div>
             <a href="{% url 'task-update' task.id %}">{{task}}</a>
+            {% endif %}
         </div>
         <a class="delete-link" href="{% url 'task-delete' task.id %}">&#215;</a>
-        {% endif %}
     </div>
+
     {% empty %}
-    <h3>No tasks in list</h3>
+    <h2 style="text-align: center; padding-bottom: 20px;">Your To Do list is empty ☹️</h3>
     {% endfor %}
 </div>
+
+<script src="{% static 'js/taskReordering.js' %}"></script>
 
 {% endblock content %}

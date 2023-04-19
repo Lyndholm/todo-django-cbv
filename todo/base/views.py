@@ -2,13 +2,16 @@ from django.contrib.auth import login
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.views import LoginView, LogoutView
+from django.db import transaction
 from django.http import Http404
 from django.shortcuts import redirect
 from django.urls import reverse_lazy
+from django.views import View
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView, DeleteView, FormView, UpdateView
 from django.views.generic.list import ListView
 
+from .forms import TaskPositionForm
 from .models import Task
 
 
@@ -111,3 +114,16 @@ class TaskDelete(LoginRequiredMixin, DeleteView):
         if task.user != self.request.user:
             raise Http404
         return super().dispatch(*args, **kwargs)
+
+
+class TaskReorder(View):
+    def post(self, request):
+        form = TaskPositionForm(request.POST)
+
+        if form.is_valid():
+            task_positions = form.cleaned_data.get('position').split(',')
+
+            with transaction.atomic():
+                self.request.user.set_task_order(task_positions)
+
+        return redirect(reverse_lazy('tasks'))
