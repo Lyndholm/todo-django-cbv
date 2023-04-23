@@ -11,7 +11,7 @@ from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView, DeleteView, FormView, UpdateView
 from django.views.generic.list import ListView
 
-from .forms import TaskPositionForm
+from .forms import TaskForm, TaskPositionForm
 from .models import Task
 
 
@@ -76,11 +76,7 @@ class TaskDetail(LoginRequiredMixin, DetailView):
 
 class TaskCreate(LoginRequiredMixin, CreateView):
     model = Task
-    fields = (
-        'title',
-        'description',
-        'complete',
-    )
+    form_class = TaskForm
     success_url = reverse_lazy('tasks')
 
     def form_valid(self, form):
@@ -90,11 +86,7 @@ class TaskCreate(LoginRequiredMixin, CreateView):
 
 class TaskUpdate(LoginRequiredMixin, UpdateView):
     model = Task
-    fields = (
-        'title',
-        'description',
-        'complete',
-    )
+    form_class = TaskForm
     success_url = reverse_lazy('tasks')
 
     def dispatch(self, *args, **kwargs):
